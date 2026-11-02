@@ -1,57 +1,87 @@
 package co.edu.usbcali.autosusbcali.controller;
 
-import co.edu.usbcali.autosusbcali.domain.Rol;
+
+import co.edu.usbcali.autosusbcali.dto.request.CrearModificarRolRequest;
 import co.edu.usbcali.autosusbcali.dto.response.ObtenerRolResponse;
-import co.edu.usbcali.autosusbcali.mapper.RolMapper;
-import co.edu.usbcali.autosusbcali.repository.RolRepository;
+import co.edu.usbcali.autosusbcali.service.IRolService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
+
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/roles")
 @AllArgsConstructor
 public class RolController {
-    private final RolRepository rolRepository;
+    private final IRolService rolService;
 
     @GetMapping
     public List<ObtenerRolResponse> obtenerTodos() {
-        return RolMapper.listaRolesAlistaObtenerRolResponse(rolRepository.findAll());
+        return rolService.obtenerTodos();
     }
 
     @GetMapping("/activos")
     public List<ObtenerRolResponse> obtenerTodosActivos(){
-        return RolMapper.listaRolesAlistaObtenerRolResponse(rolRepository.findByActivo(true));
+        return rolService.buscarRolPorEstado(true);
     }
 
     @GetMapping("/inactivos")
     public List<ObtenerRolResponse> obtenerTodosInactivo(){
-        return RolMapper.listaRolesAlistaObtenerRolResponse(rolRepository.findByActivo(false));
+        return rolService.buscarRolPorEstado(false);
     }
 
     @GetMapping("/por-nombre/{nombre}")
-    public ResponseEntity<Rol> obtenerPorNombre(@PathVariable String nombre){
-        Optional<Rol> rolOptional = rolRepository.findByNombre(nombre);
-        if (rolOptional.isPresent()){
-            return new ResponseEntity<>(rolOptional.get(), HttpStatus.OK);
+    public ResponseEntity<ObtenerRolResponse> obtenerPorNombre(@PathVariable String nombre){
+        ObtenerRolResponse rolResponse = rolService.obtenerRolPorNombre(nombre);
+        if (rolResponse != null){
+            return new ResponseEntity<>(rolResponse, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/por-id/{id}")
-    public ResponseEntity<Rol> obtenerPorId(@PathVariable Long id){
-        Optional<Rol> rolOptional = rolRepository.findById(id);
-        if (rolOptional.isPresent()){
-            return new ResponseEntity<>(rolOptional.get(), HttpStatus.OK);
+    public ResponseEntity<ObtenerRolResponse> obtenerPorId(@PathVariable Long id){
+        ObtenerRolResponse rolResponse = rolService.obtenerRolPorId(id);
+        if (rolResponse != null){
+            return new ResponseEntity<>(rolResponse, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-}
+
+    @PostMapping("/guardar")
+    public ResponseEntity<ObtenerRolResponse> crearRol(
+            @RequestBody CrearModificarRolRequest crearRolRequest) throws Exception{
+        return new ResponseEntity<>(
+                rolService.crearRol(crearRolRequest),
+                HttpStatus.CREATED
+        );
+
+    }
+
+    @PutMapping("/modificar/{id}")
+    public ResponseEntity<ObtenerRolResponse> modificarRol(
+            @PathVariable Long id,
+            @RequestBody CrearModificarRolRequest modificarRolRequest) throws Exception {
+
+        return new ResponseEntity<>(
+                rolService.modificarRol(id, modificarRolRequest),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Void> eliminarRol(
+            @PathVariable Long id) throws Exception {
+
+        rolService.eliminarRol(id);
+
+        return new ResponseEntity<>(
+                HttpStatus.NO_CONTENT
+        );
+    }
+
+    }
