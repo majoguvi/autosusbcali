@@ -25,5 +25,8 @@ public interface IRolService {
     // Metodo para eliminar un rol
     void eliminarRol(Long id) throws Exception;
 
+    // Metodo para eliminar fisicamente un rol
+    void eliminarRolFisicamente(Long id) throws Exception;
+
 
 }

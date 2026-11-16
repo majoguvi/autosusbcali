@@ -133,6 +133,11 @@ public class RolService implements IRolService {
             throw new Exception("El id no puede ser nulo.");
         }
 
+        if (id == 0) {
+            throw new Exception("El id no puede ser 0.");
+        }
+
+
         // Consultar el rol que se desea eliminar
         Rol rol = rolRepository.findById(id)
                 .orElseThrow(() -> new Exception("No existe un rol con el id " + id));
@@ -147,6 +152,27 @@ public class RolService implements IRolService {
 
         // Guardar el cambio en la base de datos
         rolRepository.save(rol);
+    }
+
+
+    @Override
+    public void eliminarRolFisicamente(Long id) throws Exception {
+
+        // Validar que se haya recibido el id
+        if (id == null) {
+            throw new Exception("El id no puede ser nulo.");
+        }
+
+        if (id == 0) {
+            throw new Exception("El id no puede ser 0.");
+        }
+
+        // Consultar el rol que se desea eliminar
+        Rol rol = rolRepository.findById(id)
+                .orElseThrow(() -> new Exception("No existe un rol con el id " + id));
+
+        // Eliminar fisicamente el rol de la base de datos
+        rolRepository.delete(rol);
     }
 
 }
